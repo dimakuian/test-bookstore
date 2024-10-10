@@ -3,11 +3,13 @@ package com.example.bookstore.model.entity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "books")
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 public class Book {
 
     @Id
