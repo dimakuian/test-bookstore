@@ -22,17 +22,20 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.TestingAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
+import java.util.stream.Stream;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
@@ -51,20 +54,12 @@ class BookControllerTest {
 
     private Book book;
     private BookResponse bookResponse;
-    private String jwtToken;
 
     @BeforeEach
     void setUp() throws Exception {
         book = new Book(1, "Effective Java", new Author(1, "Joshua", "Bloch"), 45.0);
         bookResponse = new BookResponse("Effective Java", "Joshua Bloch", new HashMap<>());
-
-        MvcResult mvcResult = mockMvc.perform(post("/api/v1/auth/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{ \"username\": \"john_doe\", \"password\": \"password123\" }"))
-                .andReturn();
-
-        String response = mvcResult.getResponse().getContentAsString();
-        jwtToken = response.substring(16, response.length() - 2);
+        setAuthentication("ROLE_WRITER");
     }
 
     @Test
@@ -73,7 +68,7 @@ class BookControllerTest {
 
         given(bookService.findAllBooks(Mockito.any())).willReturn(allBooks);
 
-        mockMvc.perform(get("/api/v1/books").header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtToken))
+        mockMvc.perform(get("/api/v1/books"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content.[0].title").value("Effective Java"));
     }
@@ -82,8 +77,7 @@ class BookControllerTest {
     void getBookById() throws Exception {
         given(bookService.findBookById(1)).willReturn(bookResponse);
 
-        mockMvc.perform(get("/api/v1/books/{id}", 1)
-                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtToken))
+        mockMvc.perform(get("/api/v1/books/{id}", 1))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.title").value("Effective Java"));
     }
@@ -94,8 +88,7 @@ class BookControllerTest {
 
         mockMvc.perform(post("/api/v1/books")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(book))
-                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtToken))
+                        .content(objectMapper.writeValueAsString(book)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.title").value("Effective Java"));
     }
@@ -104,8 +97,7 @@ class BookControllerTest {
     void deleteBook() throws Exception {
         doNothing().when(bookService).deleteBook(1);
 
-        mockMvc.perform(delete("/api/v1/books/{id}", 1)
-                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtToken))
+        mockMvc.perform(delete("/api/v1/books/{id}", 1))
                 .andExpect(status().isOk());
     }
 
@@ -115,8 +107,7 @@ class BookControllerTest {
 
         mockMvc.perform(put("/api/v1/books/{id}", 1)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(book))
-                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtToken))
+                        .content(objectMapper.writeValueAsString(book)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.title").value("Effective Java"));
     }
@@ -125,8 +116,14 @@ class BookControllerTest {
     void getBookByIdNotFound() throws Exception {
         given(bookService.findBookById(1)).willThrow(ResourceNotFoundException.class);
 
-        mockMvc.perform(get("/api/v1/books/{id}", 1)
-                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtToken))
+        mockMvc.perform(get("/api/v1/books/{id}", 1))
                 .andExpect(status().isNotFound());
+    }
+
+    private void setAuthentication(String... roles) {
+        List<SimpleGrantedAuthority> authorities = Stream.of(roles)
+                .map(SimpleGrantedAuthority::new)
+                .toList();
+        SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("test_user", "", authorities));
     }
 }
