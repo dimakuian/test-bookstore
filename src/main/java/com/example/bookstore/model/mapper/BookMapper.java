@@ -4,12 +4,11 @@ import com.example.bookstore.model.BookResponse;
 import com.example.bookstore.model.entity.Author;
 import com.example.bookstore.model.entity.Book;
 import com.example.bookstore.utils.CurrencyConverter;
+import org.springframework.data.domain.Page;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Mapper class for converting Book entity to BookResponse DTO.
@@ -38,16 +37,14 @@ public class BookMapper {
     }
 
     /**
-     * Converts a list of Book entities to a list of BookResponse DTOs.
+     * Converts a list of Book entities to a Page of BookResponse DTOs.
      *
-     * @param books         The list of book entities.
+     * @param bookPage      The page of book entities.
      * @param currencyRates The map of currency rates.
-     * @return A list of BookResponse DTOs.
+     * @return A Page of BookResponse DTOs.
      */
-    public static List<BookResponse> toBookResponseList(List<Book> books, Map<String, Double> currencyRates) {
-        return books.stream()
-                .map(book -> toBookResponse(book, currencyRates))
-                .collect(Collectors.toList());
+    public static Page<BookResponse> toBookResponseList(Page<Book> bookPage, Map<String, Double> currencyRates) {
+        return bookPage.map(book -> toBookResponse(book, currencyRates));
     }
 
 

@@ -11,6 +11,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -48,8 +51,8 @@ class BookServiceTest {
         when(fixerApiAdapter.fetchCurrencyRates()).thenReturn(currencyResponse);
 
         // Act
-        List<BookResponse> bookResponses = bookService.findAllBooks();
-
+        Page<BookResponse> bookResponsesPage = bookService.findAllBooks(PageRequest.of(0, 5, Sort.by("id")));
+        List<BookResponse> bookResponses = bookResponsesPage.getContent();
         // Assert
         assertEquals(2, bookResponses.size());
         assertEquals("Book One", bookResponses.getFirst().getTitle());

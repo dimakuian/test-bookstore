@@ -9,9 +9,9 @@ import com.example.bookstore.repository.BookRepository;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 /**
  * Service class for managing books.
@@ -32,13 +32,12 @@ public class BookService {
     /**
      * Retrieves all books and converts them to BookResponse DTOs with current currency rates.
      *
-     * @return A list of BookResponse DTOs.
+     * @return A page of BookResponse DTOs.
      */
-    public List<BookResponse> findAllBooks() {
+    public Page<BookResponse> findAllBooks(PageRequest pageRequest) {
         log.info("Fetching all books with current currency rates");
         final CurrencyResponse currencyResponse = fixerApiAdapter.fetchCurrencyRates();
-        final List<Book> books = bookRepository.findAll();
-        return BookMapper.toBookResponseList(books, currencyResponse.getRates());
+        return BookMapper.toBookResponseList(bookRepository.findAll(pageRequest), currencyResponse.getRates());
     }
 
     /**
@@ -74,7 +73,7 @@ public class BookService {
      * Updates an existing book identified by ID with new data.
      * This method fetches a book by its ID and updates its properties with the provided book data.
      *
-     * @param id The ID of the book to update.
+     * @param id          The ID of the book to update.
      * @param updatedBook The new book data to apply. This includes title, author, and price.
      * @return The updated book.
      * @throws ResourceNotFoundException if no book is found with the given ID, indicating that the update operation cannot proceed.

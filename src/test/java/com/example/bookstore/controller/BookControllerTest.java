@@ -13,10 +13,15 @@ import com.example.bookstore.service.BookService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
@@ -26,9 +31,8 @@ import org.springframework.test.web.servlet.MvcResult;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
@@ -65,12 +69,13 @@ class BookControllerTest {
 
     @Test
     void getAllBooks() throws Exception {
-        List<BookResponse> allBooks = Arrays.asList(bookResponse);
-        given(bookService.findAllBooks()).willReturn(allBooks);
+        Page<BookResponse> allBooks = new PageImpl<>(Collections.singletonList(bookResponse), PageRequest.of(0, 5, Sort.by("id")), 1);
+
+        given(bookService.findAllBooks(Mockito.any())).willReturn(allBooks);
 
         mockMvc.perform(get("/api/v1/books").header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtToken))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].title").value("Effective Java"));
+                .andExpect(jsonPath("$.content.[0].title").value("Effective Java"));
     }
 
     @Test

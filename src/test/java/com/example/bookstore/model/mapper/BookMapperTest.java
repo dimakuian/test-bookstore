@@ -4,11 +4,12 @@ import com.example.bookstore.model.BookResponse;
 import com.example.bookstore.model.entity.Author;
 import com.example.bookstore.model.entity.Book;
 import org.junit.jupiter.api.Test;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -45,8 +46,11 @@ class BookMapperTest {
         currencyRates.put("USD", 1.2);
         currencyRates.put("UAH", 36.0);
 
+        Page<Book> page = new PageImpl<>(books, PageRequest.of(0, 5, Sort.by("id")), 1);
         // Act
-        List<BookResponse> responses = BookMapper.toBookResponseList(books, currencyRates);
+        Page<BookResponse> bookResponsePage = BookMapper.toBookResponseList(
+                page, currencyRates);
+        List<BookResponse> responses = bookResponsePage.getContent();
 
         // Assert
         assertEquals(2, responses.size());
