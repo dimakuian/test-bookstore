@@ -12,13 +12,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -41,7 +39,9 @@ class BookServiceTest {
         Book book1 = new Book(1, "Book One", new Author(1, "Author", "One"), 10.0);
         Book book2 = new Book(2, "Book Two", new Author(1, "Author", "Two"), 15.0);
         List<Book> books = Arrays.asList(book1, book2);
-        when(bookRepository.findAll()).thenReturn(books);
+
+        PageImpl<Book> page = new PageImpl<>(books, PageRequest.of(0, 5, Sort.by("id")), 1);
+        when(bookRepository.findAll(PageRequest.of(0, 5, Sort.by("id")))).thenReturn(page);
 
         CurrencyResponse currencyResponse = new CurrencyResponse();
         currencyResponse.setRates(new HashMap<>() {{

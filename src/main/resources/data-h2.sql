@@ -1,9 +1,9 @@
 INSERT INTO users (username, password, role) VALUES
-('john_doe', '$2a$12$idjZEDYokQmuhTT3tbnpR.d444nUFoUkgkM.KinoQYiIzXxf5sRkm', 'ROLE_USER');
+('john_doe', '$2a$12$idjZEDYokQmuhTT3tbnpR.d444nUFoUkgkM.KinoQYiIzXxf5sRkm', 'ROLE_WRITER');
 INSERT INTO users (username, password, role) VALUES
-('jane_doe', '$2a$12$idjZEDYokQmuhTT3tbnpR.d444nUFoUkgkM.KinoQYiIzXxf5sRkm', 'ROLE_ADMIN');
+('jane_doe', '$2a$12$idjZEDYokQmuhTT3tbnpR.d444nUFoUkgkM.KinoQYiIzXxf5sRkm', 'ROLE_WRITER');
 INSERT INTO users (username, password, role) VALUES
-('jim_beam', '$2a$12$idjZEDYokQmuhTT3tbnpR.d444nUFoUkgkM.KinoQYiIzXxf5sRkm', 'ROLE_USER');
+('jim_beam', '$2a$12$idjZEDYokQmuhTT3tbnpR.d444nUFoUkgkM.KinoQYiIzXxf5sRkm', 'ROLE_VIEWER');
 
 INSERT INTO authors (first_name, last_name) VALUES ('John', 'Doe');
 INSERT INTO authors (first_name, last_name) VALUES ('Jane', 'Smith');

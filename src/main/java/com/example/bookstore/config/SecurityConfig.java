@@ -38,7 +38,7 @@ public class SecurityConfig {
      * @return A PasswordEncoder that uses the BCrypt strong hashing function.
      */
     @Bean
-    public PasswordEncoder passwordEncoder(){
+    public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
@@ -51,16 +51,19 @@ public class SecurityConfig {
      * @throws Exception if an error occurs during the configuration.
      */
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http.csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests((authorize)->{
+                .authorizeHttpRequests((authorize) -> {
                     authorize.requestMatchers("api/v1/auth/**").permitAll();
                     authorize.anyRequest().authenticated();
-                }).httpBasic(Customizer.withDefaults());
+                })
+                .httpBasic(Customizer.withDefaults());
 
-        http.exceptionHandling( exception -> exception
-                .authenticationEntryPoint(authenticationEntryPoint));
+        http.exceptionHandling(exception -> {
+            // Handle 401 Unauthorized for failed authentication
+            exception.authenticationEntryPoint(authenticationEntryPoint);
+        });
 
         http.addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class);
 

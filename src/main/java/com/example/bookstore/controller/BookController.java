@@ -10,6 +10,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
@@ -24,6 +25,7 @@ public class BookController {
         this.bookService = bookService;
     }
 
+    @PreAuthorize("hasRole('ROLE_VIEWER') or hasRole('ROLE_WRITER')")
     @GetMapping
     public ResponseEntity<Page<BookResponse>> getAllBooks(
             @RequestParam(value = "offset", defaultValue = "0") int offset,
@@ -35,22 +37,26 @@ public class BookController {
         return ResponseEntity.ok(bookService.findAllBooks(pageRequest));
     }
 
+    @PreAuthorize("hasRole('ROLE_VIEWER') or hasRole('ROLE_WRITER')")
     @GetMapping("/{id}")
     public ResponseEntity<BookResponse> getBookById(@PathVariable Integer id) {
         return ResponseEntity.ok(bookService.findBookById(id));
     }
 
+    @PreAuthorize("hasRole('ROLE_WRITER')")
     @PostMapping
     public ResponseEntity<Book> createBook(@RequestBody Book book) {
         return new ResponseEntity<>(bookService.saveBook(book), HttpStatus.CREATED);
     }
 
+    @PreAuthorize("hasRole('ROLE_WRITER')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteBook(@PathVariable Integer id) {
         bookService.deleteBook(id);
         return ResponseEntity.ok().build();
     }
 
+    @PreAuthorize("hasRole('ROLE_WRITER')")
     @PutMapping("/{id}")
     public ResponseEntity<Book> updateBook(@PathVariable Integer id, @RequestBody Book bookDetails) {
         Book updatedBook = bookService.updateBook(id, bookDetails);
