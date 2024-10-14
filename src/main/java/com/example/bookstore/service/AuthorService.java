@@ -67,7 +67,11 @@ public class AuthorService {
      */
     public void deleteAuthor(Integer id) {
         log.info("Deleting author with ID: {}", id);
-        authorRepository.deleteById(id);
+        if (authorRepository.existsById(id)){
+            authorRepository.deleteById(id);
+        } else {
+            throw new ResourceNotFoundException("Author not found with id " + id);
+        }
     }
 
     /**

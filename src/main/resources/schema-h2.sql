@@ -22,5 +22,5 @@ CREATE TABLE IF NOT EXISTS books (
   author_id INT NOT NULL,
   price DECIMAL(10,2) NOT NULL,
   UNIQUE (title, author_id),
-  FOREIGN KEY (author_id) REFERENCES authors(`author_id`)
+  FOREIGN KEY (author_id) REFERENCES authors(`author_id`) ON DELETE CASCADE
 );
