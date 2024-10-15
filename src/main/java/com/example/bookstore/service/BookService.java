@@ -21,12 +21,12 @@ import org.springframework.stereotype.Service;
 public class BookService {
 
     private final BookRepository bookRepository;
-    private final FixerApiAdapter fixerApiAdapter;
+    private final CurrencyRateService rateService;
 
     @Autowired
-    public BookService(BookRepository bookRepository, FixerApiAdapter fixerApiAdapter) {
+    public BookService(BookRepository bookRepository, CurrencyRateService rateService) {
         this.bookRepository = bookRepository;
-        this.fixerApiAdapter = fixerApiAdapter;
+        this.rateService = rateService;
     }
 
     /**
@@ -36,7 +36,7 @@ public class BookService {
      */
     public Page<BookResponse> findAllBooks(PageRequest pageRequest) {
         log.info("Fetching all books with current currency rates");
-        final CurrencyResponse currencyResponse = fixerApiAdapter.fetchCurrencyRates();
+        final CurrencyResponse currencyResponse = rateService.fetchCurrencyRates();
         return BookMapper.toBookResponseList(bookRepository.findAll(pageRequest), currencyResponse.getRates());
     }
 
@@ -51,7 +51,7 @@ public class BookService {
      */
     public BookResponse findBookById(Integer id) {
         log.info("Fetching book by ID: {}", id);
-        CurrencyResponse currencyResponse = fixerApiAdapter.fetchCurrencyRates();
+        CurrencyResponse currencyResponse = rateService.fetchCurrencyRates();
         return bookRepository.findById(id)
                 .map(book -> BookMapper.toBookResponse(book, currencyResponse.getRates()))
                 .orElseThrow(() -> new ResourceNotFoundException("Book not found with id" + id));
