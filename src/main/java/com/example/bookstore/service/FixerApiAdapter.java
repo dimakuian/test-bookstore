@@ -4,6 +4,7 @@ import com.example.bookstore.exception.CurrencyFetchException;
 import com.example.bookstore.model.CurrencyResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
@@ -31,6 +32,7 @@ public class FixerApiAdapter implements CurrencyRateService {
      * @throws CurrencyFetchException if there is an issue fetching the currency rates.
      */
     @Override
+    @Cacheable(value = "currencyResponseCache", unless = "#result == null")
     public CurrencyResponse fetchCurrencyRates() {
         return restClient.get()
                 .uri(apiUrl)
