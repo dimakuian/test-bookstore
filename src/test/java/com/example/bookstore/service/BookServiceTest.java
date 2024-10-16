@@ -28,7 +28,7 @@ class BookServiceTest {
     private BookRepository bookRepository;
 
     @Mock
-    private FixerApiAdapter fixerApiAdapter;
+    private CurrencyRatesService ratesService;
 
     @InjectMocks
     private BookService bookService;
@@ -48,7 +48,7 @@ class BookServiceTest {
             put("USD", 1.1);
             put("EUR", 0.9);
         }});
-        when(fixerApiAdapter.fetchCurrencyRates()).thenReturn(currencyResponse);
+        when(ratesService.getCurrencyRates()).thenReturn(currencyResponse);
 
         // Act
         Page<BookResponse> bookResponsesPage = bookService.findAllBooks(PageRequest.of(0, 5, Sort.by("id")));
@@ -74,7 +74,7 @@ class BookServiceTest {
             put("USD", 1.1);
             put("EUR", 0.9);
         }});
-        when(fixerApiAdapter.fetchCurrencyRates()).thenReturn(currencyResponse);
+        when(ratesService.getCurrencyRates()).thenReturn(currencyResponse);
 
         // Act
         BookResponse bookResponse = bookService.findBookById(bookId);
